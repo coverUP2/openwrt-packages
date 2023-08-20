@@ -36,7 +36,7 @@ sed -i "/^threads =/c\threads = $processor" /etc/uwsgi/vassals/luci-webui.ini
 fi
 
 if [ -f /etc/config/attendedsysupgrade ]; then
-uci -q set attendedsysupgrade.server.url='https://supes.top'
+uci -q set attendedsysupgrade.server.url='https://openwrt.ai'
 uci commit attendedsysupgrade
 fi
 
@@ -76,7 +76,6 @@ if [[ ! "$version" || "$version" -lt 1 ]]; then
 	fi
 
 	sed -i '/option disabled/d' /etc/config/wireless
-	sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
 
 	wifi_setup_radio(){
 	local radio=$1
@@ -125,7 +124,7 @@ if [[ ! "$version" || "$version" -lt 1 ]]; then
 		fi
 	}
 
-	if [ -f /etc/config/wireless ]; then
+	if [[ -f /etc/config/wireless ]]; then
 		SSID=${hostname}
 		SSID_PASSWD=""
 		[ "$(uci -q get wireless.radio1.band)" == "5g" ] && uci -q set wireless.radio0.band="2g"

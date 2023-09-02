@@ -39,6 +39,8 @@ config global_forwarding
 	option use_nft '0'
 	option tcp_proxy_way 'redirect'
 	option ipv6_tproxy '0'
+	
+config global_xray
 	option sniffing '1'
 	option route_only '0'
 
@@ -77,14 +79,6 @@ config global_subscribe
 	list filter_discard_list '剩余流量'
 	list filter_discard_list 'QQ群'
 	list filter_discard_list '官网'
-
-config auto_switch
-	option enable '1'
-	option restore_switch '1'
-	option testing_time '1'
-	option connect_timeout '3'
-	option retry_num '3'
-	option shunt_logic '1'
 
 config nodes 'myshunt'
 	option remarks '分流总节点'

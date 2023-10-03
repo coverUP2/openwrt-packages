@@ -2,11 +2,13 @@ local m, s = ...
 
 local api = require "luci.passwall2.api"
 
-if not api.is_finded("sing-box") then
+local singbox_bin = api.finded_com("singbox")
+
+if not singbox_bin then
 	return
 end
 
-local singbox_tags = luci.sys.exec(api.finded("sing-box") .. " version  | grep 'Tags:' | awk '{print $2}'")
+local singbox_tags = luci.sys.exec(singbox_bin .. " version  | grep 'Tags:' | awk '{print $2}'")
 
 local appname = api.appname
 local uci = api.uci
@@ -17,26 +19,6 @@ local option_prefix = "singbox_"
 
 local function option_name(name)
 	return option_prefix .. name
-end
-
-local function rm_prefix_cfgvalue(self, section)
-	if self.option:find(option_prefix) == 1 then
-		return m:get(section, self.option:sub(1 + #option_prefix))
-	end
-end
-local function rm_prefix_write(self, section, value)
-	if s.fields["type"]:formvalue(arg[1]) == type_name then
-		if self.option:find(option_prefix) == 1 then
-			m:set(section, self.option:sub(1 + #option_prefix), value)
-		end
-	end
-end
-local function rm_prefix_remove(self, section, value)
-	if s.fields["type"]:formvalue(arg[1]) == type_name then
-		if self.option:find(option_prefix) == 1 then
-			m:del(section, self.option:sub(1 + #option_prefix))
-		end
-	end
 end
 
 local ss_method_new_list = {
@@ -68,7 +50,6 @@ end
 if singbox_tags:find("with_quic") then
 	o:value("hysteria", "Hysteria")
 end
-o:value("shadowtls", "ShadowTLS")
 o:value("vless", "VLESS")
 if singbox_tags:find("with_quic") then
 	o:value("tuic", "TUIC")
@@ -180,34 +161,19 @@ end
 -- [[ 分流模块 End ]]
 
 o = s:option(Value, option_name("address"), translate("Address (Support Domain Name)"))
-o:depends({ [option_name("protocol")] = "vmess" })
-o:depends({ [option_name("protocol")] = "vless" })
-o:depends({ [option_name("protocol")] = "http" })
-o:depends({ [option_name("protocol")] = "socks" })
-o:depends({ [option_name("protocol")] = "shadowsocks" })
-o:depends({ [option_name("protocol")] = "shadowsocksr" })
-o:depends({ [option_name("protocol")] = "trojan" })
-o:depends({ [option_name("protocol")] = "wireguard" })
-o:depends({ [option_name("protocol")] = "shadowtls" })
 
 o = s:option(Value, option_name("port"), translate("Port"))
 o.datatype = "port"
-o:depends({ [option_name("protocol")] = "vmess" })
-o:depends({ [option_name("protocol")] = "vless" })
-o:depends({ [option_name("protocol")] = "http" })
-o:depends({ [option_name("protocol")] = "socks" })
-o:depends({ [option_name("protocol")] = "shadowsocks" })
-o:depends({ [option_name("protocol")] = "shadowsocksr" })
-o:depends({ [option_name("protocol")] = "trojan" })
-o:depends({ [option_name("protocol")] = "wireguard" })
-o:depends({ [option_name("protocol")] = "shadowtls" })
 
-o = s:option(ListValue, option_name("shadowtls_version"), translate("Version"))
-o.default = "1"
-o:value("1", "ShadowTLS v1")
-o:value("2", "ShadowTLS v2")
-o:value("3", "ShadowTLS v3")
-o:depends({ [option_name("protocol")] = "shadowtls" })
+local protocols = s.fields[option_name("protocol")].keylist
+if #protocols > 0 then
+	for index, value in ipairs(protocols) do
+		if not value:find("_") then
+			s.fields[option_name("address")]:depends({ [option_name("protocol")] = value })
+			s.fields[option_name("port")]:depends({ [option_name("protocol")] = value })
+		end
+	end
+end
 
 o = s:option(Value, option_name("username"), translate("Username"))
 o:depends({ [option_name("protocol")] = "http" })
@@ -220,8 +186,6 @@ o:depends({ [option_name("protocol")] = "socks" })
 o:depends({ [option_name("protocol")] = "shadowsocks" })
 o:depends({ [option_name("protocol")] = "shadowsocksr" })
 o:depends({ [option_name("protocol")] = "trojan" })
-o:depends({ [option_name("protocol")] = "shadowtls", [option_name("shadowtls_version")] = "2" })
-o:depends({ [option_name("protocol")] = "shadowtls", [option_name("shadowtls_version")] = "3" })
 o:depends({ [option_name("protocol")] = "tuic" })
 
 o = s:option(ListValue, option_name("security"), translate("Encrypt Method"))
@@ -229,32 +193,16 @@ for a, t in ipairs(security_list) do o:value(t) end
 o:depends({ [option_name("protocol")] = "vmess" })
 
 o = s:option(ListValue, option_name("ss_method"), translate("Encrypt Method"))
-o.not_rewrite = true
+o.rewrite_option = "method"
 for a, t in ipairs(ss_method_new_list) do o:value(t) end
 for a, t in ipairs(ss_method_old_list) do o:value(t) end
 o:depends({ [option_name("protocol")] = "shadowsocks" })
-function o.cfgvalue(self, section)
-	return m:get(section, "method")
-end
-function o.write(self, section, value)
-	if s.fields["type"]:formvalue(arg[1]) == type_name then
-		m:set(section, "method", value)
-	end
-end
 
 if singbox_tags:find("with_shadowsocksr") then
 	o = s:option(ListValue, option_name("ssr_method"), translate("Encrypt Method"))
-	o.not_rewrite = true
+	o.rewrite_option = "method"
 	for a, t in ipairs(ss_method_old_list) do o:value(t) end
 	o:depends({ [option_name("protocol")] = "shadowsocksr" })
-	function o.cfgvalue(self, section)
-		return m:get(section, "method")
-	end
-	function o.write(self, section, value)
-		if s.fields["type"]:formvalue(arg[1]) == type_name then
-			m:set(section, "method", value)
-		end
-	end
 
 	local ssr_protocol_list = {
 		"origin", "verify_simple", "verify_deflate", "verify_sha1", "auth_simple",
@@ -294,6 +242,25 @@ o:depends({ [option_name("protocol")] = "vmess" })
 o:depends({ [option_name("protocol")] = "vless" })
 o:depends({ [option_name("protocol")] = "tuic" })
 
+o = s:option(Value, option_name("alter_id"), "Alter ID")
+o.datatype = "uinteger"
+o.default = "0"
+o:depends({ [option_name("protocol")] = "vmess" })
+
+o = s:option(Flag, option_name("global_padding"), "global_padding", translate("Protocol parameter. Will waste traffic randomly if enabled."))
+o.default = "0"
+o:depends({ [option_name("protocol")] = "vmess" })
+
+o = s:option(Flag, option_name("authenticated_length"), "authenticated_length", translate("Protocol parameter. Enable length block encryption."))
+o.default = "0"
+o:depends({ [option_name("protocol")] = "vmess" })
+
+o = s:option(ListValue, option_name("flow"), translate("flow"))
+o.default = ""
+o:value("", translate("Disable"))
+o:value("xtls-rprx-vision")
+o:depends({ [option_name("protocol")] = "vless", [option_name("tls")] = true })
+
 if singbox_tags:find("with_quic") then
 	o = s:option(Value, option_name("hysteria_obfs"), translate("Obfs Password"))
 	o:depends({ [option_name("protocol")] = "hysteria" })
@@ -325,6 +292,9 @@ if singbox_tags:find("with_quic") then
 
 	o = s:option(Flag, option_name("hysteria_disable_mtu_discovery"), translate("Disable MTU detection"))
 	o:depends({ [option_name("protocol")] = "hysteria" })
+
+	o = s:option(Value, option_name("hysteria_alpn"), translate("QUIC TLS ALPN"))
+	o:depends({ [option_name("protocol")] = "hysteria" })
 end
 
 if singbox_tags:find("with_quic") then
@@ -353,6 +323,9 @@ if singbox_tags:find("with_quic") then
 	o = s:option(Value, option_name("tuic_heartbeat"), translate("Heartbeat interval(second)"))
 	o.datatype = "uinteger"
 	o.default = "3"
+	o:depends({ [option_name("protocol")] = "tuic" })
+
+	o = s:option(Value, option_name("tuic_alpn"), translate("QUIC TLS ALPN"))
 	o:depends({ [option_name("protocol")] = "tuic" })
 end
 
@@ -383,27 +356,6 @@ o:depends({ [option_name("protocol")] = "vless" })
 o:depends({ [option_name("protocol")] = "socks" })
 o:depends({ [option_name("protocol")] = "trojan" })
 o:depends({ [option_name("protocol")] = "shadowsocks" })
-o:depends({ [option_name("protocol")] = "shadowtls" })
-
-o = s:option(Value, option_name("flow"), translate("flow"))
-o.default = ""
-o:value("", translate("Disable"))
-o:value("xtls-rprx-vision")
-o:value("xtls-rprx-vision-udp443")
-o:depends({ [option_name("protocol")] = "vless", [option_name("tls")] = true })
-
-if singbox_tags:find("with_reality") then
-	o = s:option(Flag, option_name("reality"), translate("REALITY"), translate("Only recommend to use with VLESS-TCP-XTLS-Vision."))
-	o.default = 0
-	o:depends({ [option_name("protocol")] = "vless", [option_name("tls")] = true })
-
-	-- [[ REALITY部分 ]] --
-	o = s:option(Value, option_name("reality_publicKey"), translate("Public Key"))
-	o:depends({ [option_name("tls")] = true, [option_name("reality")] = true })
-
-	o = s:option(Value, option_name("reality_shortId"), translate("Short Id"))
-	o:depends({ [option_name("tls")] = true, [option_name("reality")] = true })
-end
 
 o = s:option(ListValue, option_name("alpn"), translate("alpn"))
 o.default = "default"
@@ -415,26 +367,71 @@ o:depends({ [option_name("tls")] = true })
 
 o = s:option(Value, option_name("tls_serverName"), translate("Domain"))
 o:depends({ [option_name("tls")] = true })
+o:depends({ [option_name("protocol")] = "hysteria"})
+o:depends({ [option_name("protocol")] = "tuic" })
+o:depends({ [option_name("protocol")] = "hysteria2" })
 
 o = s:option(Flag, option_name("tls_allowInsecure"), translate("allowInsecure"), translate("Whether unsafe connections are allowed. When checked, Certificate validation will be skipped."))
 o.default = "0"
 o:depends({ [option_name("tls")] = true })
+o:depends({ [option_name("protocol")] = "hysteria"})
+o:depends({ [option_name("protocol")] = "tuic" })
+o:depends({ [option_name("protocol")] = "hysteria2" })
+
+if singbox_tags:find("with_ech") then
+	o = s:option(Flag, option_name("ech"), translate("ECH"))
+	o.default = "0"
+	o:depends({ [option_name("tls")] = true, [option_name("flow")] = "", [option_name("reality")] = false })
+	o:depends({ [option_name("protocol")] = "tuic" })
+	o:depends({ [option_name("protocol")] = "hysteria" })
+	o:depends({ [option_name("protocol")] = "hysteria2" })
+
+	o = s:option(Value, option_name("ech_config"), translate("ECH Config"))
+	o.default = ""
+	o:depends({ [option_name("ech")] = true })
+
+	o = s:option(Flag, option_name("pq_signature_schemes_enabled"), translate("PQ signature schemes"))
+	o.default = "0"
+	o:depends({ [option_name("ech")] = true })
+
+	o = s:option(Flag, option_name("dynamic_record_sizing_disabled"), translate("Disable adaptive sizing of TLS records"))
+	o.default = "0"
+	o:depends({ [option_name("ech")] = true })
+end
 
 if singbox_tags:find("with_utls") then
-	o = s:option(Value, option_name("fingerprint"), translate("Finger Print"), translate("Avoid using randomized, unless you have to."))
-	o:value("", translate("Disable"))
+	o = s:option(Flag, option_name("utls"), translate("uTLS"))
+	o.default = "0"
+	o:depends({ [option_name("tls")] = true })
+
+	o = s:option(ListValue, option_name("fingerprint"), translate("Finger Print"))
 	o:value("chrome")
 	o:value("firefox")
-	o:value("safari")
-	o:value("ios")
-	-- o:value("android")
 	o:value("edge")
+	o:value("safari")
 	-- o:value("360")
 	o:value("qq")
+	o:value("ios")
+	-- o:value("android")
 	o:value("random")
-	o:value("randomized")
-	o.default = ""
-	o:depends({ [option_name("tls")] = true, [option_name("reality")] = false })
+	-- o:value("randomized")
+	o.default = "chrome"
+	o:depends({ [option_name("tls")] = true, [option_name("utls")] = true })
+
+	-- [[ REALITY部分 ]] --
+	o = s:option(Flag, option_name("reality"), translate("REALITY"))
+	o.default = 0
+	o:depends({ [option_name("protocol")] = "vless", [option_name("utls")] = true })
+	o:depends({ [option_name("protocol")] = "vmess", [option_name("utls")] = true })
+	o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("utls")] = true })
+	o:depends({ [option_name("protocol")] = "socks", [option_name("utls")] = true })
+	o:depends({ [option_name("protocol")] = "trojan", [option_name("utls")] = true })
+	
+	o = s:option(Value, option_name("reality_publicKey"), translate("Public Key"))
+	o:depends({ [option_name("utls")] = true, [option_name("reality")] = true })
+	
+	o = s:option(Value, option_name("reality_shortId"), translate("Short Id"))
+	o:depends({ [option_name("utls")] = true, [option_name("reality")] = true })
 end
 
 o = s:option(ListValue, option_name("transport"), translate("Transport"))
@@ -446,6 +443,7 @@ if singbox_tags:find("with_quic") then
 end
 if singbox_tags:find("with_grpc") then
 	o:value("grpc", "gRPC")
+else o:value("grpc", "gRPC-lite")
 end
 o:depends({ [option_name("protocol")] = "vmess" })
 o:depends({ [option_name("protocol")] = "vless" })
@@ -512,25 +510,23 @@ o = s:option(Value, option_name("ws_earlyDataHeaderName"), translate("Early data
 o:depends({ [option_name("ws_enableEarlyData")] = true })
 
 -- [[ gRPC部分 ]]--
-if singbox_tags:find("with_grpc") then
-	o = s:option(Value, option_name("grpc_serviceName"), "ServiceName")
-	o:depends({ [option_name("transport")] = "grpc" })
+o = s:option(Value, option_name("grpc_serviceName"), "ServiceName")
+o:depends({ [option_name("transport")] = "grpc" })
 
-	o = s:option(Flag, option_name("grpc_health_check"), translate("Health check"))
-	o:depends({ [option_name("transport")] = "grpc" })
+o = s:option(Flag, option_name("grpc_health_check"), translate("Health check"))
+o:depends({ [option_name("transport")] = "grpc" })
 
-	o = s:option(Value, option_name("grpc_idle_timeout"), translate("Idle timeout"))
-	o.default = "10"
-	o:depends({ [option_name("grpc_health_check")] = true })
+o = s:option(Value, option_name("grpc_idle_timeout"), translate("Idle timeout"))
+o.default = "10"
+o:depends({ [option_name("grpc_health_check")] = true })
 
-	o = s:option(Value, option_name("grpc_health_check_timeout"), translate("Health check timeout"))
-	o.default = "20"
-	o:depends({ [option_name("grpc_health_check")] = true })
+o = s:option(Value, option_name("grpc_health_check_timeout"), translate("Health check timeout"))
+o.default = "20"
+o:depends({ [option_name("grpc_health_check")] = true })
 
-	o = s:option(Flag, option_name("grpc_permit_without_stream"), translate("Permit without stream"))
-	o.default = "0"
-	o:depends({ [option_name("grpc_health_check")] = true })
-end
+o = s:option(Flag, option_name("grpc_permit_without_stream"), translate("Permit without stream"))
+o.default = "0"
+o:depends({ [option_name("grpc_health_check")] = true })
 
 -- [[ Mux ]]--
 o = s:option(Flag, option_name("mux"), translate("Mux"))
@@ -539,7 +535,7 @@ o:depends({ [option_name("protocol")] = "vmess" })
 o:depends({ [option_name("protocol")] = "vless", [option_name("flow")] = "" })
 o:depends({ [option_name("protocol")] = "http" })
 o:depends({ [option_name("protocol")] = "socks" })
-o:depends({ [option_name("protocol")] = "shadowsocks" })
+o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("uot")] = "" })
 o:depends({ [option_name("protocol")] = "trojan" })
 
 o = s:option(ListValue, option_name("mux_type"), translate("Mux"))
@@ -552,21 +548,48 @@ o = s:option(Value, option_name("mux_concurrency"), translate("Mux concurrency")
 o.default = 8
 o:depends({ [option_name("mux")] = true })
 
-for key, value in pairs(s.fields) do
-	if key:find(option_prefix) == 1 then
-		if not s.fields[key].not_rewrite then
-			s.fields[key].cfgvalue = rm_prefix_cfgvalue
-			s.fields[key].write = rm_prefix_write
-			s.fields[key].remove = rm_prefix_remove
-		end
+o = s:option(Flag, option_name("mux_padding"), translate("Padding"))
+o.default = 0
+o:depends({ [option_name("mux")] = true })
 
-		local deps = s.fields[key].deps
-		if #deps > 0 then
-			for index, value in ipairs(deps) do
-				deps[index]["type"] = type_name
-			end
-		else
-			s.fields[key]:depends({ type = type_name })
-		end
-	end
+o = s:option(Flag, option_name("shadowtls"), "ShadowTLS")
+o.default = 0
+o:depends({ [option_name("protocol")] = "vmess", [option_name("tls")] = false })
+o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("tls")] = false })
+
+o = s:option(ListValue, option_name("shadowtls_version"), "ShadowTLS " .. translate("Version"))
+o.default = "1"
+o:value("1", "ShadowTLS v1")
+o:value("2", "ShadowTLS v2")
+o:value("3", "ShadowTLS v3")
+o:depends({ [option_name("shadowtls")] = true })
+
+o = s:option(Value, option_name("shadowtls_password"), "ShadowTLS " .. translate("Password"))
+o.password = true
+o:depends({ [option_name("shadowtls")] = true, [option_name("shadowtls_version")] = "2" })
+o:depends({ [option_name("shadowtls")] = true, [option_name("shadowtls_version")] = "3" })
+
+o = s:option(Value, option_name("shadowtls_serverName"), "ShadowTLS " .. translate("Domain"))
+o:depends({ [option_name("shadowtls")] = true })
+
+if singbox_tags:find("with_utls") then
+	o = s:option(Flag, option_name("shadowtls_utls"), "ShadowTLS " .. translate("uTLS"))
+	o.default = "0"
+	o:depends({ [option_name("shadowtls")] = true })
+
+	o = s:option(ListValue, option_name("shadowtls_fingerprint"), "ShadowTLS " .. translate("Finger Print"))
+	o:value("chrome")
+	o:value("firefox")
+	o:value("edge")
+	o:value("safari")
+	-- o:value("360")
+	o:value("qq")
+	o:value("ios")
+	-- o:value("android")
+	o:value("random")
+	-- o:value("randomized")
+	o.default = "chrome"
+	o:depends({ [option_name("shadowtls")] = true, [option_name("shadowtls_utls")] = true })
 end
+
+api.luci_types(arg[1], m, s, type_name, option_prefix)

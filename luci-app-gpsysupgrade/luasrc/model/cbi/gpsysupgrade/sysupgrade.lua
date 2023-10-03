@@ -65,25 +65,25 @@ function to_check()
 		check_update()
 		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip-armv8-friendlyarm_nanopi-r5c-squashfs-sysupgrade.img.gz"
     elseif board_name:match("nanopi%-r6s$") then
-		model = "rockchip_rk3588_armv8/friendlyelec_nanopi-r6s"
+		model = "rockchip_rk3588_bsp/friendlyelec_nanopi-r6s"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_armv8-friendlyelec_nanopi-r6s-squashfs-sysupgrade.img.gz"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_bsp-friendlyelec_nanopi-r6s-squashfs-sysupgrade.img.gz"
     elseif board_name:match("nanopi%-r6c$") then
-		model = "rockchip_rk3588_armv8/friendlyelec_nanopi-r6c"
+		model = "rockchip_rk3588_bsp/friendlyelec_nanopi-r6c"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_armv8-friendlyelec_nanopi-r6c-squashfs-sysupgrade.img.gz"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_bsp-friendlyelec_nanopi-r6c-squashfs-sysupgrade.img.gz"
     elseif board_name:match("nanopc%-t6$") then
-		model = "rockchip_rk3588_armv8/friendlyelec_nanopc-t6"
+		model = "rockchip_rk3588_bsp/friendlyelec_nanopc-t6"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_armv8-friendlyelec_nanopc-t6-squashfs-sysupgrade.img.gz"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_bsp-friendlyelec_nanopc-t6-squashfs-sysupgrade.img.gz"
     elseif board_name:match("orangepi%-5$") then
-		model = "rockchip_rk3588_armv8/xunlong_orangepi-5"
+		model = "rockchip_rk3588_bsp/xunlong_orangepi-5"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_armv8-xunlong_orangepi-5-squashfs-sysupgrade.img.gz"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_bsp-xunlong_orangepi-5-squashfs-sysupgrade.img.gz"
     elseif board_name:match("orangepi%-5%-plus$") then
-		model = "rockchip_rk3588_armv8/xunlong_orangepi-5-plus"
+		model = "rockchip_rk3588_bsp/xunlong_orangepi-5-plus"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_armv8-xunlong_orangepi-5-plus-squashfs-sysupgrade.img.gz"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_bsp-xunlong_orangepi-5-plus-squashfs-sysupgrade.img.gz"
     elseif board_name:match("nanopi%-r4se$") then
 		model = "rockchip_armv8/friendlyarm_nanopi-r4se"
 		check_update()
@@ -437,9 +437,9 @@ function to_check()
 		check_update()
 		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mvebu-cortexa9-linksys_wrt32x-squashfs-sysupgrade.bin"
     elseif board_name:match("qihoo,v6$") then
-		model = "ipq60xx_360v6/qihoo_v6"
+		model = "qualcommax_ipq60xx/qihoo_v6"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq60xx-360v6-qihoo_v6-squashfs-nand-sysupgrade.bin"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-qualcommax-ipq60xx-qihoo_v6-squashfs-nand-sysupgrade.bin"
     elseif board_name:match("glinet,gl%-axt1800$") then
 		model = "qualcommax_ipq60xx/glinet_gl-axt1800"
 		check_update()
@@ -449,25 +449,25 @@ function to_check()
 		check_update()
 		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-qualcommax-ipq60xx-glinet_gl-axt1800-squashfs-nand-sysupgrade.bin"
     elseif board_name:match("linksys,mr7350$") then
-		model = "ipq60xx_generic/linksys_mr7350"
+		model = "qualcommax_ipq60xx/linksys_mr7350"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq60xx-generic-linksys_mr7350-squashfs-nand-sysupgrade.bin"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-qualcommax-ipq60xx-linksys_mr7350-squashfs-nand-sysupgrade.bin"
     elseif board_name:match("cmiot,ax18$") then
-		model = "ipq60xx_generic/cmiot_ax18"
+		model = "qualcommax_ipq60xx/cmiot_ax18"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq60xx-generic-cmiot_ax18-squashfs-nand-sysupgrade.bin"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-qualcommax-ipq60xx-cmiot_ax18-squashfs-nand-sysupgrade.bin"
     elseif board_name:match("zn,m2$") then
-		model = "ipq60xx_generic/zn_m2"
+		model = "qualcommax_ipq60xx/zn_m2"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq60xx-generic-zn_m2-squashfs-nand-sysupgrade.bin"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-qualcommax-ipq60xx-zn_m2-squashfs-nand-sysupgrade.bin"
     elseif board_name:match("xiaomi,rm1800$") then
-		model = "ipq60xx_generic/xiaomi_rm1800"
+		model = "qualcommax_ipq60xx/xiaomi_rm1800"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq60xx-generic-xiaomi_rm1800-squashfs-nand-sysupgrade.bin"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-qualcommax-ipq60xx-xiaomi_rm1800-squashfs-nand-sysupgrade.bin"
     elseif board_name:match("wf%-hr6001$") then
-		model = "ipq60xx_generic/huasifei_wf-hr6001"
+		model = "qualcommax_ipq60xx/huasifei_wf-hr6001"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq60xx-generic-huasifei_wf-hr6001-squashfs-nand-sysupgrade.bin"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-qualcommax-ipq60xx-huasifei_wf-hr6001-squashfs-nand-sysupgrade.bin"
     elseif board_name:match("gl%-mt300a$") then
 		model = "ramips_mt7620/glinet_gl-mt300a"
 		check_update()
@@ -520,10 +520,10 @@ function to_check()
 		model = "mediatek_filogic/xiaomi_redmi-router-ax6000-ubootmod"
 		check_update()
 		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootmod-squashfs-sysupgrade.bin"
-    elseif board_name:match("mt7981%-360%-t7%-108M$") then
-		model = "mediatek_mt7981/mt7981-360-t7-108M"
+    elseif board_name:match("qihoo,360t7$") then
+		model = "mediatek_filogic/qihoo_360t7"
 		check_update()
-		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-mt7981-360-t7-108M-squashfs-sysupgrade.bin"
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek_filogic-qihoo_360t7-squashfs-sysupgrade.bin"
     elseif board_name:match("linksys,ea4500$") then
 		model = "kirkwood_generic/linksys_ea4500"
 		check_update()
@@ -604,6 +604,34 @@ function to_check()
 		model = "mediatek_mt7981/xiaomi_wr30u-112M"
 		check_update()
 		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-xiaomi_wr30u-112M-squashfs-sysupgrade.bin"
+    elseif board_name:match("zr%-3020$") then
+		model = "mediatek_mt7981/livinet_zr-3020"
+		check_update()
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-livinet_zr-3020-squashfs-sysupgrade.bin"
+    elseif board_name:match("cetron,ct3003$") then
+		model = "mediatek_mt7981/cetron_ct3003"
+		check_update()
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-cetron_ct3003-squashfs-sysupgrade.bin"
+    elseif board_name:match("jcg,q30$") then
+		model = "mediatek_mt7981/jcg_q30"
+		check_update()
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-jcg_q30-squashfs-sysupgrade.bin"
+    elseif board_name:match("mt7981%-clt%-r30b1%-112M$") then
+		model = "mediatek_mt7981/mt7981-clt-r30b1-112M"
+		check_update()
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-mt7981-clt-r30b1-112M-squashfs-sysupgrade.bin"
+    elseif board_name:match("komi%-a31$") then
+		model = "mediatek_mt7981/konka_komi-a31"
+		check_update()
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-konka_komi-a31-squashfs-sysupgrade.bin"
+    elseif board_name:match("lc%-hx3001$") then
+		model = "mediatek_mt7981/imou_lc-hx3001"
+		check_update()
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-imou_lc-hx3001-squashfs-sysupgrade.bin"
+    elseif board_name:match("cmcc,rax3000m$") then
+		model = "mediatek_mt7981/cmcc_rax3000m"
+		check_update()
+		download_url = "https://dl.openwrt.ai/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-cmcc_rax3000m-squashfs-sysupgrade.bin"
     elseif board_name:match("redmi,ax3000$") then
 		model = "ipq50xx_arm/redmi_ax3000"
 		check_update()

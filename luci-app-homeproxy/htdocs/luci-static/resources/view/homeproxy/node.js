@@ -794,16 +794,17 @@ return view.extend({
 
 		so = ss.option(form.ListValue, 'tuic_udp_relay_mode', _('UDP relay mode'),
 			_('UDP packet relay mode.'));
+		so.value('', _('Default'));
 		so.value('native', _('Native'));
 		so.value('quic', _('QUIC'));
-		so.default = 'native';
+		so.default = '';
 		so.depends('type', 'tuic');
 		so.modalonly = true;
 
 		so = ss.option(form.Flag, 'tuic_udp_over_stream', _('UDP over stream'),
 			_('This is the TUIC port of the UDP over TCP protocol, designed to provide a QUIC stream based UDP relay mode that TUIC does not provide.'));
 		so.default = so.disabled;
-		so.depends({'type': 'tuic','tuic_udp_relay_mode': 'native'});
+		so.depends({'type': 'tuic','tuic_udp_relay_mode': ''});
 		so.modalonly = true;
 
 		so = ss.option(form.Flag, 'tuic_enable_zero_rtt', _('Enable 0-RTT handshake'),
@@ -989,12 +990,14 @@ return view.extend({
 		so.password = true;
 		so.depends('type', 'wireguard');
 		so.validate = L.bind(hp.validateBase64Key, this, 44);
+		so.rmempty = false;
 		so.modalonly = true;
 
 		so = ss.option(form.Value, 'wireguard_peer_public_key', _('Peer pubkic key'),
 			_('WireGuard peer public key.'));
 		so.depends('type', 'wireguard');
 		so.validate = L.bind(hp.validateBase64Key, this, 44);
+		so.rmempty = false;
 		so.modalonly = true;
 
 		so = ss.option(form.Value, 'wireguard_pre_shared_key', _('Pre-shared key'),
@@ -1223,6 +1226,12 @@ return view.extend({
 		so = ss.option(form.Flag, 'tcp_fast_open', _('TCP fast open'));
 		so.default = so.disabled;
 		so.modalonly = true;
+
+		if (features.has_mptcp) {
+			so = ss.option(form.Flag, 'tcp_multi_path', _('MultiPath TCP'));
+			so.default = so.disabled;
+			so.modalonly = true;
+		}
 
 		so = ss.option(form.Flag, 'udp_fragment', _('UDP Fragment'),
 			_('Enable UDP fragmentation.'));

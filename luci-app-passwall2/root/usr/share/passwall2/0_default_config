@@ -3,6 +3,7 @@ config global
 	option enabled '0'
 	option node_socks_port '1070'
 	option localhost_proxy '1'
+	option client_proxy '1'
 	option socks_enabled '0'
 	option acl_enable '0'
 	option node 'myshunt'
@@ -13,7 +14,7 @@ config global
 	option remote_dns_query_strategy 'UseIPv4'
 	option dns_hosts 'cloudflare-dns.com 1.1.1.1
 dns.google.com 8.8.8.8'
-	option close_log '0'
+	option log_node '1'
 	option loglevel 'error'
 	
 config global_haproxy
@@ -39,7 +40,8 @@ config global_xray
 	option route_only '0'
 
 config global_other
-	option nodes_ping 'auto_ping tcping'
+	option auto_detection_time 'tcping'
+	option show_node_info '0'
 
 config global_rules
 	option auto_update '0'
@@ -49,7 +51,6 @@ config global_rules
 
 config global_app
 	option xray_file '/usr/bin/xray'
-	option brook_file '/usr/bin/brook'
 	option hysteria_file '/usr/bin/hysteria'
 	option singbox_file '/usr/bin/sing-box'
 
@@ -63,9 +64,9 @@ config global_subscribe
 config global_singbox
 	option sniff_override_destination '0'
 	option geoip_path '/usr/share/singbox/geoip.db'
-	option geoip_url 'https://github.com/SagerNet/sing-geoip/releases/latest/download/geoip.db'
+	option geoip_url 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.db'
 	option geosite_path '/usr/share/singbox/geosite.db'
-	option geosite_url 'https://github.com/SagerNet/sing-geosite/releases/latest/download/geosite.db'
+	option geosite_url 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.db'
 
 config nodes 'myshunt'
 	option remarks '分流总节点'
@@ -74,11 +75,9 @@ config nodes 'myshunt'
 	option DirectGame '_direct'
 	option ProxyGame '_default'
 	option Direct '_direct'
-	option AD 'nil'
-	option BT '_direct'
+	option GooglePlay '_default'
 	option Netflix 'nil'
 	option OpenAI 'nil'
-	option TVB 'nil'
 	option Proxy '_default'
 	option China '_direct'
 	option QUIC '_blackhole'
@@ -145,7 +144,7 @@ geosite:category-games@cn
 
 config shunt_rules 'ProxyGame'
 	option remarks 'ProxyGame'
-	option domain_list 'geosite:category-games@!cn
+	option domain_list 'geosite:category-games
 domain:store.steampowered.com
 '
 
@@ -175,15 +174,12 @@ cdn-qc.content.steamchina.com
 cdn-ali.content.steamchina.com
 epicgames-download1-1251447533.file.myqcloud.com'
 
-config shunt_rules 'AD'
-	option remarks 'AD'
-	option domain_list 'geosite:category-ads-all'
+config shunt_rules 'GooglePlay'
+	option remarks 'GooglePlay'
 	option network 'tcp,udp'
-
-config shunt_rules 'BT'
-	option remarks 'BT'
-	option protocol 'bittorrent'
-	option network 'tcp,udp'
+	option domain_list 'domain:googleapis.cn
+domain:googleapis.com
+domain:xn--ngstr-lra8j.com'
 
 config shunt_rules 'Netflix'
 	option remarks 'Netflix'
@@ -192,14 +188,8 @@ config shunt_rules 'Netflix'
 	
 config shunt_rules 'OpenAI'
 	option remarks 'OpenAI'
-	option domain_list 'geosite:openai'
-
-config shunt_rules 'TVB'
-	option remarks 'TVB'
 	option network 'tcp,udp'
-	option domain_list 'geosite:tvb
-geosite:mytvsuper
-'
+	option domain_list 'geosite:openai'
 
 config shunt_rules 'Proxy'
 	option network 'tcp,udp'

@@ -87,7 +87,7 @@ do_install_detail() {
     done
   elif [ -d /dev/dri ]; then
     cmd="$cmd\
-    --device /dev/dri:/dev/dri \
+    -v /dev/dri:/dev/dri \
     --privileged "
   fi
   if [ "$hostnet" = 1 ]; then
@@ -100,7 +100,7 @@ do_install_detail() {
     -p $port:8096 "
   fi
 
-  local tz="`uci get system.@system[0].zonename`"
+  local tz="`uci get system.@system[0].zonename | sed 's/ /_/g'`"
   [ -z "$tz" ] || cmd="$cmd -e TZ=$tz"
 
   [ -z "$cache" ] || cmd="$cmd -v \"$cache:/config/transcodes\""

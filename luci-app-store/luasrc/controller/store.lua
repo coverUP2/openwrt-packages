@@ -227,7 +227,7 @@ function store_action(param)
         local metadata = fs.readfile(metadir .. "/" .. pkg .. ".json")
 
         if metadata ~= nil then
-            meta = json_parse(metadata)
+            meta = json_parse(metadata) or {}
         end
         meta.installed = false
         local status = ipkg.status(metapkg)
@@ -247,6 +247,20 @@ function store_action(param)
                     local metadata = fs.readfile(metadir .. "/" .. pkg)
                     if metadata ~= nil then
                         local meta = json_parse(metadata)
+                        if meta == nil then
+                            local i18n = require("luci.i18n")
+                            local name = pkg:gsub("^(.-)%.json$", "%1")
+                            meta = {
+                                name = name,
+                                title = "{ " .. name .. " }",
+                                author = "<UNKNOWN>",
+                                version = "0.0.0",
+                                description = i18n.translate("This package is broken! Please reinstall or uninstall it."),
+                                depends = {},
+                                tags = {"broken"},
+                                broken = true,
+                            }
+                        end
                         local metapkg = metapkgpre .. meta.name
                         local status = ipkg.status(metapkg)
                         if next(status) ~= nil then
@@ -263,10 +277,15 @@ function store_action(param)
         local metapkg = pkg and (metapkgpre .. pkg) or ""
         if action == "update" or pkg then
             if action == "update" or action == "install" then
-                code, out, err = _action(myopkg, action .. " --force-overwrite --force-checksum --force-depends", metapkg)
+                code, out, err = _action(myopkg, action, metapkg)
             else
                 local meta = json_parse(fs.readfile(metadir .. "/" .. pkg .. ".json"))
                 local pkgs = {}
+                if meta == nil then
+                    meta = {
+                        depends = {},
+                    }
+                end
                 if action == "upgrade" then
                     pkgs = meta.depends
                     table.insert(pkgs, metapkg)
@@ -330,7 +349,7 @@ function store_upload()
         if string.lower(string.sub(path, -4, -1)) == ".run" then
             code, out, err = _action("sh", "-c", "ls -l \"%s\"; md5sum \"%s\" 2>/dev/null; chmod 755 \"%s\" && \"%s\"; RET=$?; rm -f \"%s\"; exit $RET" %{ path, path, path, path, path })
         else
-            code, out, err = _action("sh", "-c", "opkg install --force-overwrite --force-checksum --force-depends \"%s\"; RET=$?; rm -f \"%s\"; exit $RET" %{ path, path })
+            code, out, err = _action("sh", "-c", "opkg install \"%s\"; RET=$?; rm -f \"%s\"; exit $RET" %{ path, path })
         end
     else
         code = 500

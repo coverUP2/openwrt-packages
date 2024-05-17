@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luci-app-ddns 2.4.2-1\n"
 "POT-Creation-Date: 2016-09-25 10:43+0200\n"
-"PO-Revision-Date: 2023-08-20 12:46+0000\n"
-"Last-Translator: Felix Baumann <felix.bau@gmx.de>\n"
+"PO-Revision-Date: 2024-05-08 06:32+0000\n"
+"Last-Translator: David <dawin@users.noreply.hosted.weblate.org>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsddns/de/>\n"
 "Language: de\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.0-dev\n"
+"X-Generator: Weblate 5.5.4-rc\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-Basepath: .\n"
 
@@ -244,8 +244,8 @@ msgid "Error"
 msgstr "Fehler"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:1024
-msgid "Error Retry Counter"
-msgstr "Wiederholungszähler bei Fehler"
+msgid "Error Max Retry Counter"
+msgstr "Höchstwiederholungszähler bei Fehlern"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:1034
 msgid "Error Retry Interval"
@@ -570,7 +570,8 @@ msgstr ""
 "zu ermitteln."
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:1025
-msgid "On Error the script will stop execution after given number of retrys."
+msgid ""
+"On Error the script will stop execution after the given number of retries."
 msgstr ""
 "Bei einem Fehler bricht das Skript die Ausführung nach einer bestimmten "
 "Anzahl von Wiederholungsversuchen ab."
@@ -597,7 +598,7 @@ msgstr "Proxy-Server"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:749
 msgid "Password"
-msgstr "Passwort"
+msgstr "Kennwort"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:775
 msgid "Path to CA-Certificate"
@@ -662,7 +663,7 @@ msgstr "Einmalig ausführen"
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:229
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:1109
 msgid "Running"
-msgstr "Laufend"
+msgstr "Läuft"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:796
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:853
@@ -742,7 +743,7 @@ msgid "The default setting of '0' will retry infinitely."
 msgstr "Beim Standard-Wert von '0' wird es endlos erneut versucht."
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:1035
-msgid "The interval between which each succesive retry will commence."
+msgid "The interval between which each successive retry commences."
 msgstr ""
 "Das Intervall, in dem jeder aufeinanderfolgende Wiederholungsversuch "
 "gestartet wird."

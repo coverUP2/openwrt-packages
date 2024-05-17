@@ -72,7 +72,8 @@ return view.extend({
 
 		if (L.hasSystemFeature('fullconenat')) {
 		o = s.option(form.Flag, 'fullcone', _('FullCone NAT'), _('Using FullCone NAT can improve gaming performance effectively'));
-		o = s.option(form.Flag, 'fullcone6', _('Enable FullCone NAT6'));
+		if (fw4)
+			o = s.option(form.Flag, 'fullcone6', _('Enable FullCone NAT6'));
 		}
 
 		/* Netfilter flow offload support */
@@ -91,7 +92,7 @@ return view.extend({
 
 			o = s.option(form.Flag, 'flow_offloading_hw',
 				_('Hardware flow offloading'),
-				_('Requires hardware NAT support. Implemented at least for mt7621'));
+				_('Requires hardware NAT support.'));
 			o.optional = true;
 			o.depends('flow_offloading', '1');
 		}

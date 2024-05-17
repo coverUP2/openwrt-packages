@@ -110,8 +110,9 @@ get_bind_ip() {
 
 # 定义基本 HTTP 命令和参数
 gen_http_cmd() {
-	_http_cmd="https://tisu-api-v3.speedtest.cn/speedUp/query"
-	_http_cmd1="https://api-v3.speedtest.cn/ip"
+	_http_cmd="https://tisu-api-v3.speedtest.cn/speedUp/query" 
+ 	_http_cmd1="ipinfo.io/ip/"
+  	#_http_cmd1="http://myip.ipip.net/"失效
 	_http_cmd2="https://tisu-api.speedtest.cn/api/v2/speedup/reopen"
 	return 1
 }
@@ -162,6 +163,7 @@ isp_bandwidth() {
 	local _updatedAt
 	json_get_var _updatedAt "updatedAt"
 	_log "提速开始时间: $_updatedAt" $(( 1 | 1 * 4 ))
+ 	#普通
 	local _targetUpH
 	json_get_var _targetUpH "targetUpH"			
 	local _upHExpire
@@ -177,18 +179,40 @@ isp_bandwidth() {
 	local _downExpire
 	json_get_var _downExpire "downExpire"
 	_log "下行带宽${_download}M提速截至时间: $_downExpire" $(( 1 | 1 * 4 ))
-	#50
+    	#套餐1
+	local _downUp50Expire
+	json_get_var _downUp50Expire "downUp50Expire"
+ 	_log "一类套餐带宽$(expr $_targetUpH / 1024)M上行+${_download}M下行提速截至时间: $_downUp50Expire" $(( 1 | 1 * 4 ))
+ 	#套餐2
+ 	local _downUpExpire
+	json_get_var _downUpExpire "downUpExpire"
+	_log "二类套餐带宽$(expr $_targetUp100 / 1024)M上行+${_download}M下行提速截至时间: $_downUpExpire" $(( 1 | 1 * 4 ))
+ 	#普通
 	local _upHExpireT
+ 	local _up100ExpireT
+  	local _downExpireT
+   	#50
 	json_get_var _upHExpireT "upHExpireT"
 	#100
-	local _up100ExpireT
 	json_get_var _up100ExpireT "up100ExpireT"
 	#500
-	local _downExpireT
 	json_get_var _downExpireT "downExpireT"
+ 	#套餐
+  	local _downUp50ExpireT
+ 	local _downUpExpireT
+   	json_get_var _downUp50ExpireT "downUp50ExpireT"
+    	json_get_var _downUpExpireT "downUpExpireT"
 	#time
 	local cur_sec=`date '+%s'`
- 	if [ $_up100ExpireT != "false" -a $_up100ExpireT -gt $cur_sec ]; then
+  	if [ $_downUpExpireT != "false" -a $_downUpExpireT -gt $cur_sec ]; then
+		#二类套餐上行提速
+		local outmsg="二类套餐上行提速成功，带宽已提升至 $(expr $_targetUp100 / 1024)M"; _log "$outmsg" $(( 1 | 2 * 8 ))
+		[ $1 -eq 1 ] && down_acc=2 || up_acc=2
+ 	elif [ $_downUp50ExpireT != "false" -a $_downUp50ExpireT -gt $cur_sec ]; then
+		#一类套餐上行提速
+		local outmsg="一类套餐上行提速成功，带宽已提升至 $(expr $_targetUpH / 1024)M"; _log "$outmsg" $(( 1 | 2 * 8 ))
+		[ $1 -eq 1 ] && down_acc=2 || up_acc=2
+ 	elif [ $_up100ExpireT != "false" -a $_up100ExpireT -gt $cur_sec ]; then
 		#二类上行提速
 		local outmsg="二类上行提速成功，带宽已提升至 $(expr $_targetUp100 / 1024)M"; _log "$outmsg" $(( 1 | 2 * 8 ))
 		[ $1 -eq 1 ] && down_acc=2 || up_acc=2
@@ -200,7 +224,15 @@ isp_bandwidth() {
 		local outmsg="上行未开通"; _log "$outmsg" $(( 1 | 2 * 8 | 32 ))
 		[ $1 -eq 1 ] && down_acc=0 || up_acc=0
 	fi
- 	if [ $_downExpireT != "false" -a $_downExpireT -gt $cur_sec ]; then
+  	if [ $_downUpExpireT != "false" -a $_downUpExpireT -gt $cur_sec ]; then
+		#二类套餐下行提速
+		local outmsg="二类套餐下行提速成功，带宽已提升至 ${_download}M"; _log "$outmsg" $(( 1 | 1 * 8 ))
+		[ $1 -eq 1 ] && down_acc=2 || up_acc=2
+   	elif [ $_downUp50ExpireT != "false" -a $_downUp50ExpireT -gt $cur_sec ]; then
+		#一类套餐下行提速
+		local outmsg="一类套餐下行提速成功，带宽已提升至 ${_download}M"; _log "$outmsg" $(( 1 | 1 * 8 ))
+		[ $1 -eq 1 ] && down_acc=2 || up_acc=2
+ 	elif [ $_downExpireT != "false" -a $_downExpireT -gt $cur_sec ]; then
 		#下行提速
 		local outmsg="下行提速成功，带宽已提升至 ${_download}M"; _log "$outmsg" $(( 1 | 1 * 8 ))
 		[ $1 -eq 1 ] && down_acc=2 || up_acc=2
@@ -230,7 +262,7 @@ _keepalive() {
   # 接口名称
   network=$(uci -q get "broadband.general.network")
    # 获取出口ip
-  _publicnet_ip=$(wget -qO- $_http_cmd1 | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1)
+  _publicnet_ip=$(wget -q -O - $_http_cmd1 | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1)
    # 断网睡眠
   if [ -z "$_publicnet_ip" ]; then
     _log "网络断开！请检查接口是否断开"
@@ -333,8 +365,8 @@ broadband_init() {
 	_log "宽带助手正在启动..."
 
 	# 检查外部调用工具
-	command -v wget-ssl >/dev/null || { opkg update; opkg install wget-ssl; _log "GNU Wget-ssl 未安装,尝试安装中..."; }
-	command -v wget-ssl >/dev/null || { ln -s /usr/libexec/wget-ssl /usr/bin/wget-ssl; _log "GNU Wget-ssl 正在创建软链接"; }
+	command -v wget-ssl >/dev/null || { _log "GNU Wget-ssl 未安装,尝试安装中...可能需要几分钟"; opkg update; opkg install wget-ssl; }
+	command -v wget-ssl >/dev/null || { _log "GNU Wget-ssl 正在创建软链接"; ln -s /usr/libexec/wget-ssl /usr/bin/wget-ssl; }
 	command -v wget-ssl >/dev/null || { _log "GNU Wget-ssl 安装失败，尝试其他版本或反馈作者修复"; return 3; }
 
 	# 捕获中止信号

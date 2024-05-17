@@ -1,8 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-openclash
-PKG_VERSION:=0.45.141
-PKG_RELEASE:=244
+PKG_VERSION:=0.46.003
+PKG_RELEASE:=249
 PKG_MAINTAINER:=vernesong <https://github.com/vernesong/OpenClash>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
@@ -11,6 +11,9 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)/config
 	config PACKAGE_kmod-inet-diag
+	default y if PACKAGE_$(PKG_NAME)
+
+	config PACKAGE_luci-compat
 	default y if PACKAGE_$(PKG_NAME)
 
 	config PACKAGE_kmod-nft-tproxy
@@ -32,7 +35,7 @@ define Package/$(PKG_NAME)
 	TITLE:=LuCI support for clash
 	PKGARCH:=all
 	DEPENDS:=+dnsmasq-full +coreutils +coreutils-nohup +bash +curl +ca-bundle +ipset +ip-full \
-	+libcap +libcap-bin +libcap-bin +ruby +ruby-yaml +kmod-tun +unzip +kmod-inet-diag +kmod-ipt-nat +iptables-mod-tproxy +iptables-mod-extra
+	+libcap +libcap-bin +ruby +ruby-yaml +kmod-tun +unzip +kmod-inet-diag +kmod-ipt-nat +iptables-mod-tproxy +iptables-mod-extra
 	MAINTAINER:=vernesong
 endef
 
@@ -97,6 +100,7 @@ endef
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 	sed -i "s/v0.00.00-beta/v$(PKG_VERSION)-beta/g" /www/luci-static/resources/openclash/img/version.svg >/dev/null 2>&1
+	/etc/init.d/network restart >/dev/null 2>&1 &
 	exit 0
 endef
 
@@ -135,10 +139,15 @@ define Package/$(PKG_NAME)/postrm
 	rm -rf /tmp/openclash_edit_file_name >/dev/null 2>&1
 	rm -rf /tmp/openclash_*_region>/dev/null 2>&1
 	sed -i '/OpenClash Append/,/OpenClash Append End/d' "/usr/lib/lua/luci/model/network.lua" >/dev/null 2>&1
+	sed -i '/.*kB maximum content size*/c\HTTP_MAX_CONTENT      = 1024*100		-- 100 kB maximum content size' /usr/lib/lua/luci/http.lua >/dev/null 2>&1
+	sed -i '/.*kB maximum content size*/c\export let HTTP_MAX_CONTENT = 1024*100;		// 100 kB maximum content size' /usr/share/ucode/luci/http.uc >/dev/null 2>&1
 	uci -q delete firewall.openclash
 	uci -q commit firewall
 	uci -q delete ucitrack.@openclash[-1]
 	uci -q commit ucitrack
+	uci -q delete network.utun
+	uci -q commit network
+	/etc/init.d/network restart >/dev/null 2>&1 &
 	rm -rf /tmp/luci-*
 	exit 0
 endef
